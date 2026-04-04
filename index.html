@@ -132,7 +132,7 @@
         <button onclick="checkPassword()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%; margin-top:10px;">进入</button>
     </div>
 </div>
-    <audio id="bgMusic" loop preload="auto">
+    <audio id="bgMusic" loop>
     <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
 </audio>
 
@@ -181,9 +181,20 @@
 
     // 1. 初始化
     window.onload = () => {
-        if (localStorage.getItem('unlocked_love') === 'true') unlockPage();
         updateDays();
-        // 设置默认时间为当前时间
+        
+        // 检查是否已经解锁过
+        if (localStorage.getItem('unlocked_love') === 'true') {
+            // 如果解锁过，把登录框的内容换成浪漫的欢迎词和开启按钮
+            const loginBox = document.querySelector('.login-box');
+            loginBox.innerHTML = `
+                <h3 style="margin-bottom:10px;">欢迎回来 🤍</h3>
+                <p style="font-size:0.9em; color:#666; margin-bottom:20px;">今天又发生了什么好玩的事呢</p>
+                <button onclick="startWithMusic()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%;">开启音乐并进入</button>
+            `;
+        }
+
+        // 设置默认时间
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         document.getElementById('dateInput').value = now.toISOString().slice(0, 16);
@@ -218,6 +229,23 @@
             alert("口令错误"); 
         }
     }
+    // 专门为“已解锁”用户准备的开启函数
+    function startWithMusic() {
+        const audio = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+
+        // 尝试播放音乐
+        if (audio) {
+            audio.play().then(() => {
+                if (musicBtn) {
+                    musicBtn.style.display = 'flex';
+                    musicBtn.classList.add('music-on');
+                }
+            }).catch(e => console.log("播放被拦截"));
+        }
+
+        unlockPage();
+    }
 
     // 新增：手动开关音乐的函数
     function toggleMusic() {
@@ -233,17 +261,13 @@
     }
 
     function unlockPage() {
-        const loginOverlay = document.getElementById('loginOverlay');
-        const btn = document.getElementById('musicBtn');
+        const overlay = document.getElementById('loginOverlay');
+        if (overlay) overlay.classList.add('hidden');
         
-        if (loginOverlay) loginOverlay.classList.add('hidden');
-        
-        // 安全判断：如果找到了按钮才显示
-        if (btn) {
-            btn.style.display = 'flex';
-        }
-        
-        loadStories();
+        // 加个小延时让过渡更平滑
+        setTimeout(() => {
+            loadStories();
+        }, 300);
     }
 
     // 2. 加载故事
