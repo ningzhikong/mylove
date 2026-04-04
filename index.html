@@ -201,13 +201,13 @@
             const dateStr = `${year}年${month}月${day}日`;
             
             // --- 注意下面这里的反引号使用 ---
-            li.innerHTML = `
-                <div class="content-card">
-                    <span class="time-tag">${dateStr}</span>
-                    <h3 style="margin:0; font-size:1em;">${item.title || ''}</h3>
-                    <p style="margin:8px 0; color:#555; font-size:0.95em; white-space:pre-wrap;">${item.content}</p>
-                    ${item.img_url ? <img src="${item.img_url}" class="story-img" loading="lazy" onclick="window.open(this.src)"> : ''}
-                </div>`;
+           li.innerHTML = `
+            <div class="content-card">
+                <span class="time-tag">${dateStr}</span>
+                <h3 style="margin:0; font-size:1em;">${item.title || ''}</h3>
+                <p style="margin:8px 0; color:#555; font-size:0.95em; white-space:pre-wrap;">${item.content}</p>
+                ${item.img_url ? `<img src="${item.img_url}" class="story-img" loading="lazy" onclick="window.open(this.src)">` : ''}
+            </div>`;
             list.appendChild(li);
         });
     }
