@@ -180,7 +180,7 @@
         if (error) return;
 
         // 1. 提取所有有图片的记录，存入轮播数组
-        bgImages = data.filter(item => item.img_url && item.img_url !== "").map(item => item.img_url);
+        bgImages = data.filter(item => item.img_url).map(item => item.img_url).slice(0, 5);
         
         // 2. 开启轮播
         if (bgImages.length > 0) {
@@ -206,7 +206,7 @@
                     <span class="time-tag">${dateStr}</span>
                     <h3 style="margin:0; font-size:1em;">${item.title || ''}</h3>
                     <p style="margin:8px 0; color:#555; font-size:0.95em; white-space:pre-wrap;">${item.content}</p>
-                    ${item.img_url ? `<img src="${item.img_url}" class="story-img" onclick="window.open(this.src)">` : ''}
+                    item.img_url ? <img src="${item.img_url}" class="story-img" loading="lazy" onclick="window.open(this.src)"> : ''
                 </div>`;
             list.appendChild(li);
         });
@@ -230,7 +230,7 @@ function startBgSlideshow() {
         currentBgIndex = (currentBgIndex + 1) % bgImages.length;
         // 加上淡入淡出效果
         heroBg.style.backgroundImage = `url(${bgImages[currentBgIndex]})`;
-    }, 5000);
+    }, 10000);
 }
     // 3. 保存故事
   async function saveStory() {
