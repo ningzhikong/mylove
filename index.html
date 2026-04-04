@@ -128,8 +128,8 @@
 <div id="loginOverlay" class="login-overlay">
     <div class="login-box">
         <h3>🤍 我们的故事</h3>
-        <input type="password" id="passwordInput" placeholder="输入密码解锁编辑模式~（你的生日四位数字）">
-        <button onclick="checkPassword()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%; margin-top:10px;">写故事进入~</button>
+        <input type="password" id="passwordInput" placeholder="输入密码解锁编辑模式~（你的生日四位数字）" onkeyup="if(event.keyCode==13) checkPassword()">
+        <button onclick="checkPassword()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%; margin-top:10px; margin-bottom:8px;">写故事进入~</button>
         
         <button onclick="enterAsGuest()" style="background-color: #f0f2f2; border: none; color: #666; padding: 12px; border-radius: 25px; width: 100%; margin-top: 15px; font-size: 0.85em; cursor: pointer; display: block;">只是欣赏~</button>
     </div>
@@ -177,10 +177,17 @@
 
     const SUPABASE_URL = 'https://vjhzbpzdewthyklhxbmx.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_PPGrvCINKV_SxyxcQ0pygg_JWkMAHgp';
-    const CORRECT_PASSWORD = '0319';
+    const PASSWORD_HASH = '6269668d27773229b0f4439f0413028e3518a4a58f480373e44927b2e1f98f62';
     const START_DATE = '2025-11-12'; 
 
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // 将字符串转换为 SHA-256 哈希值的异步函数
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
     // 1. 初始化
     window.onload = () => {
@@ -221,16 +228,20 @@
         document.getElementById('daysCount').innerText = `这是我们相识的第 ${diff} 天`;
     }
 
-    function checkPassword() {
-        const pwd = document.getElementById('passwordInput').value;
-        if (pwd === CORRECT_PASSWORD) {
+    async function checkPassword() {
+        const pwdInput = document.getElementById('passwordInput').value;
+        
+        // 将用户输入的密码进行哈希加密
+        const inputHash = await sha256(pwdInput);
+    
+        // 对比两个加密后的“指纹”
+        if (inputHash === PASSWORD_HASH) {
             localStorage.setItem('unlocked_role', 'admin');
             startWithMusic();
         } else { 
-            alert("口令错误"); 
+            alert("口令不对哦，再想想？"); 
         }
     }
-
     function enterAsGuest() {
         localStorage.setItem('unlocked_role', 'guest');
         startWithMusic();
@@ -376,9 +387,23 @@
             btn.disabled = false; 
             btn.innerText = "保存到时间轴"; 
         }
+        if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                if (file.size > 5 * 1024 * 1024) { // 限制 5MB
+                    alert("图片太大了，请压缩后再上传哦~");
+                    btn.disabled = false;
+                    btn.innerText = "保存到时间轴";
+                    return;
+                }
     }
 
-    function openModal() { document.getElementById('addModal').style.display = 'flex'; }
+    function openModal() { 
+        document.getElementById('addModal').style.display = 'flex'; 
+        // 每次打开弹窗都更新为当前最新时间
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('dateInput').value = now.toISOString().slice(0, 16);
+    }
     function closeModal() { document.getElementById('addModal').style.display = 'none'; }
 </script>
 </body>
