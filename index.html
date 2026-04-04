@@ -170,46 +170,47 @@
     }
 
     // 2. 加载故事
+    // 2. 加载故事
     async function loadStories() {
-    const { data, error } = await _supabase
-        .from('stories')
-        .select('*')
-        .order('event_date', { ascending: false });
+        const { data, error } = await _supabase
+            .from('stories')
+            .select('*')
+            .order('event_date', { ascending: false });
 
-    if (error) return;
+        if (error) return;
 
-    // 1. 提取所有有图片的记录，存入轮播数组
-    bgImages = data.filter(item => item.img_url && item.img_url !== "").map(item => item.img_url);
-    
-    // 2. 开启轮播
-    if (bgImages.length > 0) {
-        startBgSlideshow();
-    } else {
-        // 如果一张图都没有，显示一张默认浪漫图
-        document.getElementById('heroBg').style.backgroundImage = "url('https://picsum.photos/1920/1080?love')";
+        // 1. 提取所有有图片的记录，存入轮播数组
+        bgImages = data.filter(item => item.img_url && item.img_url !== "").map(item => item.img_url);
+        
+        // 2. 开启轮播
+        if (bgImages.length > 0) {
+            startBgSlideshow();
+        } else {
+            document.getElementById('heroBg').style.backgroundImage = "url('https://picsum.photos/1920/1080?love')";
+        }
+
+        // 3. 渲染下方的列表
+        const list = document.getElementById("storyList");
+        list.innerHTML = '';
+        data.forEach(item => {
+            const li = document.createElement("li");
+            const d = new Date(item.event_date);
+            const year = d.getFullYear();
+            const month = (d.getMonth() + 1).toString().padStart(2, '0');
+            const day = d.getDate().toString().padStart(2, '0');
+            const dateStr = `${year}年${month}月${day}日`;
+            
+            // --- 注意下面这里的反引号使用 ---
+            li.innerHTML = `
+                <div class="content-card">
+                    <span class="time-tag">${dateStr}</span>
+                    <h3 style="margin:0; font-size:1em;">${item.title || ''}</h3>
+                    <p style="margin:8px 0; color:#555; font-size:0.95em; white-space:pre-wrap;">${item.content}</p>
+                    ${item.img_url ? `<img src="${item.img_url}" class="story-img" onclick="window.open(this.src)">` : ''}
+                </div>`;
+            list.appendChild(li);
+        });
     }
-
-    // 3. 渲染下方的列表（这部分保持你原来的逻辑即可）
-    const list = document.getElementById("storyList");
-    list.innerHTML = '';
-    data.forEach(item => {
-        const li = document.createElement("li");
-        const d = new Date(item.event_date);
-// 使用本地时间格式化
-        const year = d.getFullYear();
-        const month = (d.getMonth() + 1).toString().padStart(2, '0');
-        const day = d.getDate().toString().padStart(2, '0');
-        const dateStr = `${year}年${month}月${day}日`;
-        li.innerHTML = `
-            <div class="content-card">
-                <span class="time-tag">${dateStr}</span>
-                <h3 style="margin:0; font-size:1em;">${item.title || ''}</h3>
-                <p style="margin:8px 0; color:#555; font-size:0.95em; white-space:pre-wrap;">${item.content}</p>
-                ${item.img_url ? <img src="${item.img_url}" class="story-img" onclick="window.open(this.src)"> : ''}
-            </div>`;
-        list.appendChild(li);
-    });
-}
 
 // 4. 新增：控制顶部背景轮播的函数
 function startBgSlideshow() {
