@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>我们的故事 - sry和txy</title>
+    <title>我们的故事--sry和txy</title>
     
     <link rel="icon" href="https://vjhzbpzdewthyklhxbmx.supabase.co/storage/v1/object/public/images/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="https://vjhzbpzdewthyklhxbmx.supabase.co/storage/v1/object/public/images/favicon.png">
@@ -144,7 +144,7 @@
     <div class="hero-overlay"></div>
     
     <h1>从相遇那天起，我们的故事开始书写</h1>
-    <p id="daysCount">正在加载我们的时光...</p>
+    <p id="daysCount">正在加载我们的时光</p>
 </div>
 
 <div id="timeline"><ul id="storyList"></ul></div>
@@ -154,7 +154,7 @@
 <div class="modal" id="addModal">
     <div class="modal-content">
         <h3>记录这一刻</h3>
-        <input type="text" id="titleInput" placeholder="标题 (可选)">
+        <input type="text" id="titleInput" placeholder="标题">
         <textarea id="contentInput" rows="4" placeholder="写下你们的故事..."></textarea>
         
         <label style="font-size: 0.8em; color: #666;">发生时间：</label>
@@ -176,7 +176,6 @@
 
     const SUPABASE_URL = 'https://vjhzbpzdewthyklhxbmx.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_PPGrvCINKV_SxyxcQ0pygg_JWkMAHgp';
-    const PASSWORD_HASH = '6269668d27773229b0f4439f0413028e3518a4a58f480373e44927b2e1f98f62';
     const START_DATE = '2025-11-12'; 
 
     
@@ -189,25 +188,7 @@
         }
     });
 
-    // 加密工具
-    async function sha256(message) {
-        try {
-            // 确保在非安全环境下也能报错提示
-            if (!window.crypto || !window.crypto.subtle) {
-                throw new Error("当前环境不支持加密 API，请使用 HTTPS 访问！");
-            }
-            const msgBuffer = new TextEncoder().encode(String(message));
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        } catch (e) {
-            console.error("加密失败:", e);
-            alert(e.message);
-            return null;
-        }
-    }
-
-    
+   
     window.onload = () => {
         updateDays();
         const savedRole = localStorage.getItem('unlocked_role');
@@ -345,7 +326,6 @@
         }, 10000);
     }
 
-    // 保存故事逻辑：图片检查已移至最上方
     async function saveStory() {
         if (localStorage.getItem('unlocked_role') !== 'admin') {
             alert("访客模式无法发布内容哦~");
@@ -358,10 +338,8 @@
         const content = document.getElementById('contentInput').value;
         let event_date = document.getElementById('dateInput').value;
 
-        // 1. 基础校验
         if (!content) return alert("内容是必须的哦");
 
-        // 2. 图片大小校验 (在这里拦截)
         if (fileInput.files.length > 0) {
             if (fileInput.files[0].size > 5 * 1024 * 1024) {
                 return alert("图片太大了，请压缩到 5MB 以内再上传哦~");
@@ -398,7 +376,6 @@
             closeModal(); 
             loadStories();
             
-            // 重置表单
             document.getElementById('titleInput').value = '';
             document.getElementById('contentInput').value = '';
             fileInput.value = '';
