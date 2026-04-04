@@ -161,36 +161,66 @@
     }
 
     // 3. 保存故事
-    async function saveStory() {
+  async function saveStory() {
         const title = document.getElementById('titleInput').value;
         const content = document.getElementById('contentInput').value;
         const event_date = document.getElementById('dateInput').value;
         const fileInput = document.getElementById('fileInput');
+        
         if (!content) return alert("内容是必须的哦");
 
         const btn = document.getElementById('saveBtn');
-        btn.disabled = true; btn.innerText = "写入时间轴...";
+        btn.disabled = true; 
+        btn.innerText = "写入时间轴...";
 
         try {
             let img_url = "";
+            // --- 图片处理开始 ---
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                const fileName = `${Date.now()}_${file.name}`;
-                const { data, error: upError } = await _supabase.storage.from('images').upload(fileName, file);
-                if (upError) throw upError;
-                img_url = _supabase.storage.from('images').getPublicUrl(fileName).data.publicUrl;
-            }
+                
+                // 核心修复：这里不再使用 file.name，而是生成一个纯数字的文件名
+                const fileExt = file.name.split('.').pop(); // 提取后缀名
+                const newFileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
 
+                const { data, error: upError } = await _supabase.storage
+                    .from('images')
+                    .upload(newFileName, file);
+                
+                if (upError) throw upError;
+
+                // 获取不带乱码的纯净 URL
+                img_url = _supabase.storage.from('images').getPublicUrl(newFileName).data.publicUrl;
+            }
+            // --- 图片处理结束 ---
+
+            // 将数据存入数据库
             const { error: dbError } = await _supabase.from('stories').insert([{ 
-                title, content, img_url, event_date 
+                title, 
+                content, 
+                img_url, 
+                event_date 
             }]);
+
             if (dbError) throw dbError;
 
-            closeModal(); loadStories();
-        } catch (e) { alert("保存失败"); console.error(e); }
-        finally { btn.disabled = false; btn.innerText = "保存到时间轴"; }
-    }
+            // 成功后关闭弹窗并刷新列表
+            closeModal(); 
+            loadStories();
+            
+            // 重置输入框
+            document.getElementById('titleInput').value = '';
+            document.getElementById('contentInput').value = '';
+            fileInput.value = '';
 
+        } catch (e) { 
+            alert("保存失败，请检查网络或图片大小"); 
+            console.error(e); 
+        } finally { 
+            btn.disabled = false; 
+            btn.innerText = "保存到时间轴"; 
+        }
+    }
     function openModal() { document.getElementById('addModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('addModal').style.display = 'none'; }
 </script>
