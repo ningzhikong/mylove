@@ -115,6 +115,36 @@
             #timeline ul li { width: 100%; text-align: left !important; padding-left: 45px !important; }
             #timeline ul li::after { left: 12px !important; }
         }
+        .content-card { 
+            background: var(--card-bg); 
+            padding: 18px; 
+            border-radius: 15px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1.5px solid transparent; 
+            transition: all 0.3s ease;
+        }
+        .card-txy {
+            border-color: #d1e5e4 !important;
+            background-color: #fbfdfd; 
+        }
+        .author-txy { 
+            background-color: #e8f3f2; 
+            color: #78a5a4; 
+        }
+        .card-sry {
+            border-color: #cfe5f8 !important;
+            background-color: #fafdff; 
+        }
+        .author-sry { 
+            background-color: #e3f2fd; 
+            color: #7ba6c9; 
+        }
+        .author-tag {
+            font-size: 0.75em;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -154,6 +184,15 @@
         
         <label style="font-size: 0.8em; color: #666;">发生时间：</label>
         <input type="datetime-local" id="dateInput">
+        <label style="font-size: 0.8em; color: #666; display: block; margin-top: 10px;">记录人：</label>
+        <div style="display: flex; gap: 20px; margin: 8px 0;">
+            <label style="font-size: 0.9em; cursor: pointer;">
+                <input type="radio" name="author" value="sry" checked style="width: auto; margin-right: 5px;"> sry
+            </label>
+            <label style="font-size: 0.9em; cursor: pointer;">
+                <input type="radio" name="author" value="txy" style="width: auto; margin-right: 5px;"> txy
+            </label>
+        </div>
         
         <input type="file" id="fileInput" accept="image/*">
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
@@ -298,11 +337,23 @@
             const li = document.createElement("li");
             const d = new Date(item.event_date);
             const dateStr = `${d.getFullYear()}年${(d.getMonth()+1).toString().padStart(2,'0')}月${d.getDate().toString().padStart(2,'0')}日`;
+            
+            // 1. 确定作者对应的类名
+            const isTxy = item.author === 'txy';
+            const cardClass = isTxy ? 'card-txy' : 'card-sry';
+            const authorClass = isTxy ? 'author-txy' : 'author-sry';
+            
+            // 2. 组装 HTML
+            const authorTag = item.author ? `<span class="author-tag ${authorClass}">${item.author}</span>` : '';
+            
             li.innerHTML = `
-            <div class="content-card">
-                <span class="time-tag">${dateStr}</span>
-                <h3 style="margin:0; font-size:1em;">${item.title || ''}</h3>
-                <p style="margin:8px 0; color:#555; font-size:0.95em; white-space:pre-wrap;">${item.content}</p>
+            <div class="content-card ${cardClass}">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span class="time-tag" style="margin:0; opacity:0.7;">${dateStr}</span>
+                    ${authorTag}
+                </div>
+                <h3 style="margin:0; font-size:1em; color:#444;">${item.title || ''}</h3>
+                <p style="margin:10px 0; color:#666; font-size:0.92em; line-height:1.6; white-space:pre-wrap;">${item.content}</p>
                 ${item.img_url ? `<img src="${item.img_url}" class="story-img" loading="lazy" onclick="window.open(this.src)">` : ''}
             </div>`;
             list.appendChild(li);
@@ -331,6 +382,7 @@
         const title = document.getElementById('titleInput').value;
         const content = document.getElementById('contentInput').value;
         let event_date = document.getElementById('dateInput').value;
+        const author = document.querySelector('input[name="author"]:checked').value;
 
         if (!content) return alert("内容是必须的哦");
 
@@ -362,17 +414,20 @@
                 title, 
                 content, 
                 img_url, 
+                author,
                 event_date: event_date ? new Date(event_date).toISOString() : new Date().toISOString()
             }]);
 
             if (dbError) throw dbError;
 
             closeModal(); 
-            loadStories();
+            await loadStories();
+            window.scrollTo({ top: document.getElementById('timeline').offsetTop - 50, behavior: 'smooth' });
             
             document.getElementById('titleInput').value = '';
             document.getElementById('contentInput').value = '';
             fileInput.value = '';
+            document.querySelector('input[name="author"][value="sry"]').checked = true;
 
         } catch (e) { 
             alert("保存失败"); 
