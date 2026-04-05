@@ -14,12 +14,9 @@
     <link rel="manifest" href="manifest.json">
     <script src="supabase.js"></script>
     <style>
-        /* ... 之前的样式 ... */
         :root { --primary-color: #92CBCA; --bg-color: #f7f9f9; --text-color: #444; --card-bg: #ffffff; }
         body { background-color: var(--bg-color); font-family: 'PingFang SC', sans-serif; color: var(--text-color); margin: 0; }
         
-        /* 顶部浪漫区域 */
-        /* 顶部区域容器 */
         .hero-section {
             position: relative;
             height: 500px; 
@@ -29,34 +26,32 @@
             align-items: center; 
             color: white; 
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            overflow: hidden; /* 必须：保证背景图不溢出到下方 */
+            overflow: hidden; 
         }
         
-        /* 专门负责背景图显示的层 */
         #heroBg {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover;
             background-position: center;
-            transition: background-image 2s ease-in-out; /* 淡入淡出动画 */
-            z-index: 1; /* 放在底层 */
+            transition: background-image 2s ease-in-out;
+            z-index: 1; 
         }
         
-        /* 黑色半透明遮罩，防止背景太亮看不清字 */
+        
         .hero-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.3);
-            z-index: 2; /* 放在图片上方，文字下方 */
+            z-index: 2; 
         }
         
-        /* 确保文字在最顶层 */
+     
         .hero-section h1, .hero-section p { 
             position: relative; 
             z-index: 3; 
         }
 
-        /* 时间轴核心样式 */
         #timeline { position: relative; max-width: 800px; margin: -30px auto 50px; padding: 20px; z-index: 10; }
         #timeline::before { content: ''; position: absolute; left: 50%; width: 2px; height: 100%; background: var(--primary-color); transform: translateX(-50%); }
         
@@ -65,7 +60,7 @@
         #timeline ul li:nth-child(odd) { float: left; text-align: right; padding-right: 35px; box-sizing: border-box; }
         #timeline ul li:nth-child(even) { float: right; text-align: left; padding-left: 35px; box-sizing: border-box; }
 
-        /* 装饰小圆点 */
+      
         #timeline ul li::after {
             content: ''; position: absolute; width: 12px; height: 12px; 
             background: white; border: 3px solid var(--primary-color); border-radius: 50%;
@@ -78,7 +73,7 @@
         .story-img { width: 100%; border-radius: 10px; margin-top: 12px; cursor: pointer; }
         .time-tag { display: inline-block; color: var(--primary-color); font-weight: bold; font-size: 0.85em; margin-bottom: 8px; }
 
-        /* 登录与弹窗 */
+   
         .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #92CBCA; display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .login-box { background: white; padding: 40px; border-radius: 25px; text-align: center; width: 80%; max-width: 300px; }
         .login-overlay.hidden { opacity: 0; visibility: hidden; }
@@ -86,7 +81,7 @@
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; border: none; z-index: 200; box-shadow: 0 5px 15px rgba(146, 203, 202, 0.4); }
         
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
-        /* 音乐旋转动画 */
+      
         @keyframes rotating {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -96,13 +91,13 @@
         .music-control {
             position: fixed;
             bottom: 30px;
-            left: 30px; /* 放在左下角，和右边的 + 号对称 */
+            left: 30px; 
             width: 50px;
             height: 50px;
             background: white;
             border: 2px solid var(--primary-color);
             border-radius: 50%;
-            display: none; /* 初始隐藏，解锁后显示 */
+            display: none; 
             align-items: center;
             justify-content: center;
             font-size: 24px;
@@ -179,7 +174,6 @@
     const START_DATE = '2025-11-12'; 
 
     
-    // 将初始化移到全局，并带上你刚才加的“防拦截”参数
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: {
             persistSession: false, 
@@ -220,7 +214,7 @@
     function checkPassword() {
         let input = document.getElementById('passwordInput').value;
         
-        // 基础清洗（全角转半角，去空格）
+       
         input = input.replace(/[\uFF10-\uFF19]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0));
         input = input.replace(/\s+/g, '');
 
