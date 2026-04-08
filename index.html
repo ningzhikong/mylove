@@ -14,6 +14,7 @@
     <link rel="manifest" href="manifest.json">
     <script src="supabase.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.2.1/compressor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         :root { --primary-color: #92CBCA; --bg-color: #f7f9f9; --text-color: #444; --card-bg: #ffffff; }
         body { background-color: var(--bg-color); font-family: 'PingFang SC', sans-serif; color: var(--text-color); margin: 0; }
@@ -124,6 +125,13 @@
             border: 1.5px solid transparent; 
             transition: all 0.3s ease;
         }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+            #storyList li {
+            animation: fadeInUp 0.6s ease forwards;
+        }
         .card-txy {
             border-color: #d1e5e4 !important;
             background-color: #fbfdfd; 
@@ -209,7 +217,7 @@
     </style>
 </head>
 <body>
-
+ 
 <div id="loginOverlay" class="login-overlay">
     <div class="login-box">
         <h3>🤍 我们的故事</h3>
@@ -270,8 +278,9 @@
     let currentBgIndex = 0;
     let bgTimer = null; 
 
-    const SUPABASE_URL = 'https://vjhzbpzdewthyklhxbmx.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_PPGrvCINKV_SxyxcQ0pygg_JWkMAHgp';
+    const SUPABASE_URL = 'VITE_SUPABASE_URL'; 
+    const SUPABASE_KEY = 'VITE_SUPABASE_ANON_KEY';
+    const ENCRYPT_KEY  = 'VITE_STORY_SECRET_KEY';
     const START_DATE = '2025-11-12'; 
 
     
@@ -307,9 +316,10 @@
 
     function updateDays() {
         const start = new Date(START_DATE);
+        start.setHours(0, 0, 0, 0); 
         const now = new Date();
         const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-        document.getElementById('daysCount').innerText = `这是我们相识的第 ${diff} 天`;
+        document.getElementById('daysCount').innerText = `这是我们相识的第 ${diff + 1} 天`; 
     }
 
     function checkPassword() {
@@ -404,6 +414,9 @@
             const isTxy = item.author === 'txy';
             const cardClass = isTxy ? 'card-txy' : 'card-sry';
             const authorClass = isTxy ? 'author-txy' : 'author-sry';
+            const bytes = CryptoJS.AES.decrypt(item.content, ENCRYPT_KEY);
+            const originalText = bytes.toString(CryptoJS.enc.Utf8);
+            const displayContent = originalText || item.content;
             
             const authorTag = item.author ? `<span class="author-tag ${authorClass}">${item.author}</span>` : '';
             
@@ -414,7 +427,7 @@
                     ${authorTag}
                 </div>
                 <h3 style="margin:0; font-size:1em; color:#444;">${item.title || ''}</h3>
-                <p style="margin:10px 0; color:#666; font-size:0.92em; line-height:1.6; white-space:pre-wrap;">${item.content}</p>
+                <p style="margin:10px 0; color:#666; font-size:0.92em; line-height:1.6; white-space:pre-wrap;">${displayContent}</p>
                 ${item.img_url ? `<img src="${item.img_url}" class="story-img" loading="lazy" onclick="viewImage('${item.img_url}')">` : ''}
             </div>`;
             list.appendChild(li);
@@ -449,6 +462,7 @@
     
         const file = fileInput.files[0];
         btn.disabled = true;
+        const encryptedContent = CryptoJS.AES.encrypt(content, ENCRYPT_KEY).toString();
     
         let finalFile = file;
         if (file) {
@@ -492,7 +506,7 @@
         
             const { error: dbError } = await _supabase.from('stories').insert([{ 
                 title, 
-                content, 
+                content: encryptedContent, 
                 img_url, 
                 author,
                 event_date: event_date ? new Date(event_date).toISOString() : new Date().toISOString()
