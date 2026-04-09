@@ -283,7 +283,7 @@
     const part2 = "yklhxbmx.supabase.co";
     const SUPABASE_URL = part1 + part2;
     const SUPABASE_KEY = 'sb_publishable_PPGrvCINKV_SxyxcQ0pygg_JWkMAHgp';
-    const sys_theme_config = "iloveyousry";
+    const sys_theme_config = "ILOVEYOUSRY";
     const START_DATE = '2025-11-12'; 
 
     
@@ -398,7 +398,7 @@
             .order('event_date', { ascending: false });
 
         if (error) return;
-
+        
         bgImages = data.filter(item => item.img_url).map(item => item.img_url).slice(0, 5);
         if (bgImages.length > 0) {
             startBgSlideshow();
@@ -408,30 +408,32 @@
 
         const list = document.getElementById("storyList");
         list.innerHTML = '';
+        
         data.forEach(item => {
             const li = document.createElement("li");
             const d = new Date(item.event_date);
             const dateStr = `${d.getFullYear()}年${(d.getMonth()+1).toString().padStart(2,'0')}月${d.getDate().toString().padStart(2,'0')}日`;
             
-            
             const isTxy = item.author === 'txy';
             const cardClass = isTxy ? 'card-txy' : 'card-sry';
             const authorClass = isTxy ? 'author-txy' : 'author-sry';
-            const bytes = CryptoJS.AES.decrypt(item.content, sys_theme_config);
-            const originalText = bytes.toString(CryptoJS.enc.Utf8);
-            const displayContent = originalText || item.content;
-            let displayContent = "";
             
-            const authorTag = item.author ? `<span class="author-tag ${authorClass}">${item.author}</span>` : '';
+    
+            let displayContent = "";
             try {
+        
                 const bytes = CryptoJS.AES.decrypt(item.content, sys_theme_config);
-                const originalText = bytes.toString(CryptoJS.enc.Utf8);
-                displayContent = originalText || item.content;
+                const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
+                
+              
+                displayContent = decryptedText ? decryptedText : item.content;
             } catch (e) {
-                console.log("这条故事解密失败，显示原内容");
-                displayContent = item.content; 
+                console.warn("数据解密异常，显示原始内容:", e);
+                displayContent = item.content;
             }
+  
             const authorTag = item.author ? `<span class="author-tag ${authorClass}">${item.author}</span>` : '';
+            
             li.innerHTML = `
             <div class="content-card ${cardClass}">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -445,7 +447,6 @@
             list.appendChild(li);
         });
     }
-
     function startBgSlideshow() {
         if (bgTimer) clearInterval(bgTimer);
         const heroBg = document.getElementById('heroBg');
