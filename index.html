@@ -7,6 +7,7 @@
     
     <link rel="icon" href="https://vjhzbpzdewthyklhxbmx.supabase.co/storage/v1/object/public/images/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="https://vjhzbpzdewthyklhxbmx.supabase.co/storage/v1/object/public/images/favicon.png">
+    <link rel="shortcut icon" href="https://vjhzbpzdewthyklhxbmx.supabase.co/storage/v1/object/public/images/favicon.png">
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="我们的故事">
@@ -419,9 +420,18 @@
             const bytes = CryptoJS.AES.decrypt(item.content, sys_theme_config);
             const originalText = bytes.toString(CryptoJS.enc.Utf8);
             const displayContent = originalText || item.content;
+            let displayContent = "";
             
             const authorTag = item.author ? `<span class="author-tag ${authorClass}">${item.author}</span>` : '';
-            
+            try {
+                const bytes = CryptoJS.AES.decrypt(item.content, sys_theme_config);
+                const originalText = bytes.toString(CryptoJS.enc.Utf8);
+                displayContent = originalText || item.content;
+            } catch (e) {
+                console.log("这条故事解密失败，显示原内容");
+                displayContent = item.content; 
+            }
+            const authorTag = item.author ? `<span class="author-tag ${authorClass}">${item.author}</span>` : '';
             li.innerHTML = `
             <div class="content-card ${cardClass}">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
