@@ -418,20 +418,25 @@
             const cardClass = isTxy ? 'card-txy' : 'card-sry';
             const authorClass = isTxy ? 'author-txy' : 'author-sry';
             
-    
-            let displayContent = "";
+            let displayContent = ""; 
+            
+         
             try {
-        
+     
                 const bytes = CryptoJS.AES.decrypt(item.content, sys_theme_config);
                 const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
                 
-              
-                displayContent = decryptedText ? decryptedText : item.content;
+         
+                if (decryptedText) {
+                    displayContent = decryptedText;
+                } else {
+                    displayContent = item.content;
+                }
             } catch (e) {
-                console.warn("数据解密异常，显示原始内容:", e);
+       
                 displayContent = item.content;
             }
-  
+
             const authorTag = item.author ? `<span class="author-tag ${authorClass}">${item.author}</span>` : '';
             
             li.innerHTML = `
