@@ -278,9 +278,11 @@
     let currentBgIndex = 0;
     let bgTimer = null; 
 
-    const SUPABASE_URL = 'MY_SUB_URL'; 
-    const SUPABASE_KEY = 'MY_SUB_KEY';
-    const ENCRYPT_KEY  = 'MY_ENC_KEY';
+    const part1 = "https://vjhzbpzdewth";
+    const part2 = "yklhxbmx.supabase.co";
+    const SUPABASE_URL = part1 + part2;
+    const SUPABASE_KEY = 'sb_publishable_PPGrvCINKV_SxyxcQ0pygg_JWkMAHgp';
+    const sys_theme_config = "iloveyousry";
     const START_DATE = '2025-11-12'; 
 
     
@@ -414,7 +416,7 @@
             const isTxy = item.author === 'txy';
             const cardClass = isTxy ? 'card-txy' : 'card-sry';
             const authorClass = isTxy ? 'author-txy' : 'author-sry';
-            const bytes = CryptoJS.AES.decrypt(item.content, ENCRYPT_KEY);
+            const bytes = CryptoJS.AES.decrypt(item.content, sys_theme_config);
             const originalText = bytes.toString(CryptoJS.enc.Utf8);
             const displayContent = originalText || item.content;
             
@@ -462,7 +464,7 @@
     
         const file = fileInput.files[0];
         btn.disabled = true;
-        const encryptedContent = CryptoJS.AES.encrypt(content, ENCRYPT_KEY).toString();
+        const encryptedContent = CryptoJS.AES.encrypt(content, sys_theme_config).toString();
     
         let finalFile = file;
         if (file) {
